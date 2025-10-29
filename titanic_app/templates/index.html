@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulación Titanic</title>
+
+<style>
+  /* Página centrada con fondo suave */
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000000; /* azul pastel claro */
+    font-family: 'Arial', sans-serif;
+  }
+
+  /* Contenedor mega pequeño y estilizado */
+  .container {
+    background: #1b1b1b; /* azul pastel */
+    padding: 15px 20px;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(255, 255, 255, 0.15);
+    width: 260px; /* súper pequeño */
+    text-align: center;
+    color: #ffffff;
+  }
+
+  h1 {
+    font-size: 1.1em;
+    margin-bottom: 12px;
+    color: #ff0055;
+  }
+
+  form label {
+    display: block;
+    font-size: 0.8em;
+    margin: 6px 0 3px;
+    font-weight: bold;
+    color:  #ffffff;
+  }
+
+  form input, form select, form button {
+    width: 100%;
+    padding: 5px 8px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border: none;
+    font-size: 0.85em;
+    box-sizing: border-box;
+  }
+
+  form input, form select {
+    background-color: #e0f4ff; /* azul muy suave */
+    color: #cf0037;
+  }
+
+  form input:focus, form select:focus {
+    outline: 2px solid #ff26c9;
+  }
+
+  form button {
+    background-color: #dc0042; 
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.3s;
+  }
+
+  form button:hover {
+    background-color: #87003a;
+    transform: scale(1.05);
+  }
+
+  #result {
+    margin-top: 10px;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #ff0000;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Titanic</h1>
+
+  <form id="titanicForm">
+    <label>Clase:</label>
+    <input type="number" id="pclass" required>
+
+    <label>Sexo:</label>
+    <select id="sex">
+      <option>Hombre</option>
+      <option>Mujer</option>
+    </select>
+
+    <label>Edad:</label>
+    <input type="number" id="age" required>
+
+    <label>Tarifa:</label>
+    <input type="number" id="fare" required>
+
+    <label>Embarque:</label>
+    <select id="embarked">
+      <option>C</option>
+      <option>Q</option>
+      <option>S</option>
+    </select>
+
+    <button type="submit">Predecir</button>
+  </form>
+
+  <div id="result"></div>
+</div>
+
+<script>
+document.getElementById("titanicForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+  const res = await fetch("/api/predict/", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      Pclass: document.getElementById("pclass").value,
+      Sex: document.getElementById("sex").value,
+      Age: document.getElementById("age").value,
+      Fare: document.getElementById("fare").value,
+      Embarked: document.getElementById("embarked").value
+    })
+  });
+
+  const data = await res.json();
+
+  if(data.error){
+    document.getElementById("result").innerText = "Error: " + data.error;
+  } else {
+    if(data.prediction === 1){
+      document.getElementById("result").innerHTML = 
+        `Felicidades, hubieras sobrevivido<br>Tu probabilidad: ${data.probability}%`;
+    } else {
+      document.getElementById("result").innerHTML = 
+        `Lo siento, no hubieras sobrevivido<br>Tu probabilidad: ${data.probability}%`;
+    }
+  }
+});
+</script>
+</body>
+</html>
